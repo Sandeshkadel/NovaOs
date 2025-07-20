@@ -1,0 +1,1999 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NovaOS</title>
+    <link rel="manifest" href="/manifest.json">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #6e48aa;
+            --secondary: #9d50bb;
+            --accent: #4776e6;
+            --dark: #1a1a2e;
+            --darker: #16213e;
+            --light: #f8f9fa;
+            --glass: rgba(255, 255, 255, 0.15);
+            --glass-border: rgba(255, 255, 255, 0.2);
+            --shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+            --transition: all 0.3s ease;
+            --neon-blue: #00f2fe;
+            --neon-purple: #a18cd1;
+            --neon-pink: #fbc2eb;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background: linear-gradient(135deg, var(--darker), var(--dark));
+            color: var(--light);
+            height: 100vh;
+            overflow: hidden;
+            user-select: none;
+        }
+
+        /* Login Screen */
+        .login-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            backdrop-filter: blur(10px);
+            transition: var(--transition);
+        }
+
+        .login-container {
+            background: var(--glass);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 2rem;
+            width: 350px;
+            backdrop-filter: blur(10px);
+            box-shadow: var(--shadow);
+            transform: translateY(20px);
+            opacity: 0;
+            animation: fadeInUp 0.5s ease forwards 0.3s;
+        }
+
+        @keyframes fadeInUp {
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .login-title {
+            text-align: center;
+            margin-bottom: 2rem;
+            font-size: 1.8rem;
+            font-weight: 600;
+            color: white;
+        }
+
+        .login-input {
+            width: 100%;
+            padding: 12px 15px;
+            margin-bottom: 1rem;
+            border: none;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            font-size: 1rem;
+            transition: var(--transition);
+        }
+
+        .login-input:focus {
+            outline: none;
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 10px;
+            background: linear-gradient(to right, var(--primary), var(--secondary));
+            color: white;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .login-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .login-footer {
+            text-align: center;
+            margin-top: 1.5rem;
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        /* Desktop */
+        .desktop {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            overflow: hidden;
+            display: none;
+        }
+
+        /* Wallpaper */
+        .wallpaper {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('https://source.unsplash.com/random/1920x1080/?nature,night') no-repeat center center;
+            background-size: cover;
+            z-index: -1;
+            filter: brightness(0.6);
+        }
+
+        /* Desktop Icons */
+        .desktop-icons {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .desktop-icon {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 80px;
+            cursor: pointer;
+            transition: var(--transition);
+            border-radius: 8px;
+            padding: 5px;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .desktop-icon:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: scale(1.05);
+            box-shadow: 0 0 15px rgba(110, 72, 170, 0.5);
+        }
+
+        .desktop-icon-img {
+            width: 40px;
+            height: 40px;
+            object-fit: contain;
+            margin-bottom: 5px;
+            transition: var(--transition);
+        }
+
+        .desktop-icon:hover .desktop-icon-img {
+            filter: drop-shadow(0 0 8px var(--neon-blue));
+        }
+
+        .desktop-icon-text {
+            color: white;
+            font-size: 0.8rem;
+            text-align: center;
+            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+        }
+
+        /* Dock */
+        .dock {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--glass);
+            border: 1px solid var(--glass-border);
+            border-radius: 15px;
+            padding: 10px 20px;
+            backdrop-filter: blur(10px);
+            display: flex;
+            gap: 15px;
+            z-index: 100;
+            box-shadow: var(--shadow);
+        }
+
+        .dock-item {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            transition: var(--transition);
+            position: relative;
+        }
+
+        .dock-item img {
+            width: 30px;
+            height: 30px;
+            object-fit: contain;
+            transition: var(--transition);
+        }
+
+        .dock-item:hover {
+            transform: translateY(-10px) scale(1.2);
+        }
+
+        .dock-item.active {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .dock-item::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            width: 5px;
+            height: 5px;
+            background: white;
+            border-radius: 50%;
+            opacity: 0;
+            transition: var(--transition);
+        }
+
+        .dock-item.active::after {
+            opacity: 1;
+        }
+
+        /* Windows */
+        .window {
+            position: absolute;
+            background: var(--glass);
+            border: 1px solid var(--glass-border);
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            display: none;
+            flex-direction: column;
+            z-index: 10;
+            min-width: 300px;
+            min-height: 200px;
+            resize: both;
+            transition: var(--transition);
+        }
+
+        .window-header {
+            padding: 10px 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.1);
+            cursor: move;
+        }
+
+        .window-title {
+            font-size: 0.9rem;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .window-title img {
+            width: 16px;
+            height: 16px;
+        }
+
+        .window-controls {
+            display: flex;
+            gap: 10px;
+        }
+
+        .window-btn {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .window-btn.close {
+            background: #ff5f56;
+        }
+
+        .window-btn.minimize {
+            background: #ffbd2e;
+        }
+
+        .window-btn.maximize {
+            background: #27c93f;
+        }
+
+        .window-btn:hover {
+            transform: scale(1.2);
+        }
+
+        .window-content {
+            flex: 1;
+            padding: 15px;
+            overflow: auto;
+        }
+
+        /* Apps */
+        /* Notes App */
+        .notes-app textarea {
+            width: 100%;
+            height: 100%;
+            background: transparent;
+            border: none;
+            color: white;
+            font-size: 1rem;
+            resize: none;
+            outline: none;
+            padding: 5px;
+        }
+
+        /* Files App */
+        .files-container {
+            display: flex;
+            height: 100%;
+        }
+
+        .files-sidebar {
+            width: 200px;
+            background: rgba(0, 0, 0, 0.2);
+            padding: 10px;
+            border-right: 1px solid var(--glass-border);
+        }
+
+        .files-list {
+            flex: 1;
+            padding: 10px;
+            overflow: auto;
+        }
+
+        .file-item {
+            display: flex;
+            align-items: center;
+            padding: 8px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .file-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .file-item img {
+            width: 24px;
+            height: 24px;
+            margin-right: 10px;
+        }
+
+        /* Terminal App */
+        .terminal {
+            background: rgba(0, 0, 0, 0.7);
+            color: #00ff00;
+            font-family: monospace;
+            height: 100%;
+            padding: 10px;
+            overflow: auto;
+            border-radius: 5px;
+        }
+
+        .terminal-line {
+            margin-bottom: 5px;
+        }
+
+        .terminal-input {
+            display: flex;
+        }
+
+        .terminal-prompt {
+            margin-right: 5px;
+        }
+
+        .terminal-cmd {
+            background: transparent;
+            border: none;
+            color: #00ff00;
+            font-family: monospace;
+            width: 100%;
+            outline: none;
+        }
+
+        /* Assistant App */
+        .assistant-container {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .assistant-messages {
+            flex: 1;
+            overflow: auto;
+            padding: 10px;
+        }
+
+        .assistant-message {
+            margin-bottom: 15px;
+            padding: 10px 15px;
+            border-radius: 15px;
+            max-width: 80%;
+            word-wrap: break-word;
+        }
+
+        .assistant-user {
+            background: rgba(110, 72, 170, 0.3);
+            margin-left: auto;
+            border-bottom-right-radius: 5px;
+        }
+
+        .assistant-ai {
+            background: rgba(255, 255, 255, 0.1);
+            margin-right: auto;
+            border-bottom-left-radius: 5px;
+        }
+
+        .assistant-input-container {
+            display: flex;
+            padding: 10px;
+            border-top: 1px solid var(--glass-border);
+        }
+
+        .assistant-input {
+            flex: 1;
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            border-radius: 20px;
+            padding: 10px 15px;
+            color: white;
+            outline: none;
+        }
+
+        .assistant-send {
+            background: var(--primary);
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            margin-left: 10px;
+            color: white;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: var(--transition);
+        }
+
+        .assistant-send:hover {
+            transform: scale(1.1);
+        }
+
+        /* Browser App */
+        .browser-container {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .browser-nav {
+            display: flex;
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.2);
+        }
+
+        .browser-url {
+            flex: 1;
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            border-radius: 20px;
+            padding: 8px 15px;
+            color: white;
+            outline: none;
+        }
+
+        .browser-go {
+            background: var(--primary);
+            border: none;
+            border-radius: 20px;
+            padding: 8px 15px;
+            margin-left: 10px;
+            color: white;
+            cursor: pointer;
+        }
+
+        .browser-content {
+            flex: 1;
+            border: none;
+            background: white;
+        }
+
+        /* Paint App */
+        .paint-container {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .paint-tools {
+            display: flex;
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.2);
+            gap: 10px;
+        }
+
+        .paint-tool {
+            width: 30px;
+            height: 30px;
+            border-radius: 5px;
+            background: rgba(255, 255, 255, 0.1);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+        }
+
+        .paint-tool:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .paint-tool.active {
+            background: var(--primary);
+        }
+
+        .paint-canvas-container {
+            flex: 1;
+            overflow: auto;
+        }
+
+        .paint-canvas {
+            background: white;
+            cursor: crosshair;
+        }
+
+        /* Music App */
+        .music-container {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .music-list {
+            flex: 1;
+            overflow: auto;
+            padding: 10px;
+        }
+
+        .music-item {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .music-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .music-item img {
+            width: 40px;
+            height: 40px;
+            margin-right: 10px;
+            border-radius: 5px;
+        }
+
+        .music-controls {
+            display: flex;
+            justify-content: center;
+            padding: 15px;
+            background: rgba(0, 0, 0, 0.2);
+            gap: 20px;
+        }
+
+        .music-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--primary);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+        }
+
+        /* Store App */
+        .store-container {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .store-header {
+            padding: 15px;
+            background: rgba(0, 0, 0, 0.2);
+            text-align: center;
+            font-weight: 500;
+        }
+
+        .store-apps {
+            flex: 1;
+            overflow: auto;
+            padding: 10px;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 15px;
+        }
+
+        .store-app {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 10px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .store-app:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateY(-5px);
+        }
+
+        .store-app img {
+            width: 50px;
+            height: 50px;
+            margin-bottom: 5px;
+            border-radius: 10px;
+        }
+
+        .store-app-name {
+            font-size: 0.8rem;
+            text-align: center;
+        }
+
+        .store-app-btn {
+            margin-top: 5px;
+            padding: 5px 10px;
+            border-radius: 15px;
+            background: var(--primary);
+            font-size: 0.7rem;
+        }
+
+        /* Settings App */
+        .settings-container {
+            display: flex;
+            height: 100%;
+        }
+
+        .settings-sidebar {
+            width: 200px;
+            background: rgba(0, 0, 0, 0.2);
+            padding: 10px;
+            border-right: 1px solid var(--glass-border);
+        }
+
+        .settings-item {
+            padding: 10px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .settings-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .settings-item.active {
+            background: var(--primary);
+        }
+
+        .settings-content {
+            flex: 1;
+            padding: 15px;
+            overflow: auto;
+        }
+
+        .settings-section {
+            margin-bottom: 20px;
+        }
+
+        .settings-title {
+            margin-bottom: 10px;
+            font-weight: 500;
+        }
+
+        .theme-selector {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .theme-option {
+            width: 60px;
+            height: 60px;
+            border-radius: 10px;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: var(--transition);
+        }
+
+        .theme-option:hover {
+            transform: scale(1.05);
+        }
+
+        .theme-option.selected {
+            border-color: white;
+        }
+
+        /* Context Menu */
+        .context-menu {
+            position: absolute;
+            background: var(--glass);
+            border: 1px solid var(--glass-border);
+            border-radius: 10px;
+            backdrop-filter: blur(10px);
+            box-shadow: var(--shadow);
+            padding: 5px 0;
+            z-index: 1000;
+            display: none;
+            min-width: 150px;
+        }
+
+        .context-item {
+            padding: 8px 20px;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .context-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .context-item img {
+            width: 16px;
+            height: 16px;
+        }
+
+        /* Status Bar */
+        .status-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 25px;
+            background: rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(5px);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 15px;
+            font-size: 0.8rem;
+            z-index: 50;
+        }
+
+        .status-left {
+            display: flex;
+            gap: 15px;
+        }
+
+        .status-right {
+            display: flex;
+            gap: 15px;
+        }
+
+        .status-time {
+            font-weight: 500;
+        }
+
+        /* Voice Assistant */
+        .voice-assistant {
+            position: fixed;
+            bottom: 90px;
+            right: 20px;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: var(--primary);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            z-index: 100;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            transition: var(--transition);
+        }
+
+        .voice-assistant:hover {
+            transform: scale(1.1);
+        }
+
+        .voice-assistant.listening {
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(110, 72, 170, 0.7); }
+            70% { box-shadow: 0 0 0 15px rgba(110, 72, 170, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(110, 72, 170, 0); }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .window {
+                width: 100% !important;
+                height: 80% !important;
+                left: 0 !important;
+                top: 25px !important;
+                resize: none;
+            }
+            
+            .dock {
+                bottom: 10px;
+                padding: 8px 15px;
+            }
+            
+            .dock-item {
+                width: 40px;
+                height: 40px;
+            }
+            
+            .desktop-icons {
+                top: 60px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Login Screen -->
+    <div class="login-screen" id="loginScreen">
+
+    <!-- Logo in Top Left Corner -->
+    <img src="NovaOs Logo.png" alt="NovaOS Logo" style="
+        position: absolute;
+        top: 20px;
+        left: 20px;
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        object-fit: cover;
+        box-shadow: 0 0 10px rgba(0,0,0,0.2);
+    ">
+
+    <div class="login-container">
+        <h1 class="login-title">NovaOS</h1>
+
+        <input type="text" class="login-input" id="username" placeholder="Username">
+
+        <div style="position: relative;">
+            <input type="password" class="login-input" id="password" placeholder="Password" style="padding-right: 40px;">
+            <span id="togglePassword" style="
+                position: absolute;
+                right: 10px;
+                top: 50%;
+                transform: translateY(-50%);
+                cursor: pointer;
+                font-size: 16px;
+                color: #999;">👁️</span>
+        </div>
+
+        <button class="login-btn" id="loginBtn">Login</button>
+
+        <p id="errorMsg" style="color: red; font-size: 14px; text-align: center; display: none; margin-top: 10px;">
+            ❌ Username or Password is not valid
+        </p>
+
+        <pre class="login-footer">Welcome to the future of computing
+Your Username is NovaOs@Nova.com 
+Your password is Nova@123
+        </pre>
+    </div>
+</div>
+
+
+<script>
+    loginBtn.addEventListener("click", () => {
+        const enteredUsername = usernameInput.value.trim();
+        const enteredPassword = passwordInput.value.trim();
+
+        if (enteredUsername === correctUsername && enteredPassword === correctPassword) {
+            document.getElementById("loginScreen").style.display = "none"; // hide login
+            document.getElementById("desktop").style.display = "block"; // show desktop
+            errorMsg.style.display = "none";
+        } else {
+            errorMsg.style.display = "block";
+        }
+    });
+</script>
+
+
+
+    <!-- Desktop -->
+    <div class="desktop" id="desktop">
+        <div class="wallpaper" id="wallpaper"></div>
+        
+        <!-- Desktop Icons -->
+        <div class="desktop-icons">
+            <div class="desktop-icon" data-app="notes">
+                <img src="https://cdn-icons-png.flaticon.com/512/2951/2951137.png" class="desktop-icon-img">
+                <span class="desktop-icon-text">Notes</span>
+            </div>
+            <div class="desktop-icon" data-app="files">
+                <img src="https://cdn-icons-png.flaticon.com/512/2965/2965300.png" class="desktop-icon-img">
+                <span class="desktop-icon-text">Files</span>
+            </div>
+            <div class="desktop-icon" data-app="terminal">
+                <img src="https://cdn-icons-png.flaticon.com/512/6125/6125000.png" class="desktop-icon-img">
+                <span class="desktop-icon-text">Terminal</span>
+            </div>
+            <div class="desktop-icon" data-app="browser">
+                <img src="https://cdn-icons-png.flaticon.com/512/2991/2991148.png" class="desktop-icon-img">
+                <span class="desktop-icon-text">Browser</span>
+            </div>
+            <div class="desktop-icon" data-app="assistant">
+                <img src="https://cdn-icons-png.flaticon.com/512/4712/4712035.png" class="desktop-icon-img">
+                <span class="desktop-icon-text">Assistant</span>
+            </div>
+        </div>
+
+        <!-- Windows -->
+        <div class="window" id="notesWindow">
+            <div class="window-header">
+                <div class="window-title">
+                    <img src="https://cdn-icons-png.flaticon.com/512/2951/2951137.png">
+                    <span>Nova Notes</span>
+                </div>
+                <div class="window-controls">
+                    <div class="window-btn minimize" data-window="notes"></div>
+                    <div class="window-btn maximize" data-window="notes"></div>
+                    <div class="window-btn close" data-window="notes"></div>
+                </div>
+            </div>
+            <div class="window-content notes-app">
+                <textarea id="notesContent" placeholder="Start typing your notes here..."></textarea>
+            </div>
+        </div>
+
+        <div class="window" id="filesWindow">
+            <div class="window-header">
+                <div class="window-title">
+                    <img src="https://cdn-icons-png.flaticon.com/512/2965/2965300.png">
+                    <span>Nova Files</span>
+                </div>
+                <div class="window-controls">
+                    <div class="window-btn minimize" data-window="files"></div>
+                    <div class="window-btn maximize" data-window="files"></div>
+                    <div class="window-btn close" data-window="files"></div>
+                </div>
+            </div>
+            <div class="window-content">
+                <div class="files-container">
+                    <div class="files-sidebar">
+                        <div class="file-item">
+                            <img src="https://cdn-icons-png.flaticon.com/512/2965/2965300.png">
+                            <span>Documents</span>
+                        </div>
+                        <div class="file-item">
+                            <img src="https://cdn-icons-png.flaticon.com/512/2965/2965278.png">
+                            <span>Downloads</span>
+                        </div>
+                        <div class="file-item">
+                            <img src="https://cdn-icons-png.flaticon.com/512/2965/2965279.png">
+                            <span>Pictures</span>
+                        </div>
+                        <div class="file-item">
+                            <img src="https://cdn-icons-png.flaticon.com/512/2965/2965283.png">
+                            <span>Music</span>
+                        </div>
+                    </div>
+                    <div class="files-list">
+                        <div class="file-item">
+                            <img src="https://cdn-icons-png.flaticon.com/512/2965/2965278.png">
+                            <span>Document 1.txt</span>
+                        </div>
+                        <div class="file-item">
+                            <img src="https://cdn-icons-png.flaticon.com/512/2965/2965278.png">
+                            <span>Notes.txt</span>
+                        </div>
+                        <div class="file-item">
+                            <img src="https://cdn-icons-png.flaticon.com/512/2965/2965279.png">
+                            <span>Vacation.jpg</span>
+                        </div>
+                        <div class="file-item">
+                            <img src="https://cdn-icons-png.flaticon.com/512/2965/2965283.png">
+                            <span>Song.mp3</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="window" id="terminalWindow">
+            <div class="window-header">
+                <div class="window-title">
+                    <img src="https://cdn-icons-png.flaticon.com/512/6125/6125000.png">
+                    <span>Nova Terminal</span>
+                </div>
+                <div class="window-controls">
+                    <div class="window-btn minimize" data-window="terminal"></div>
+                    <div class="window-btn maximize" data-window="terminal"></div>
+                    <div class="window-btn close" data-window="terminal"></div>
+                </div>
+            </div>
+            <div class="window-content">
+                <div class="terminal" id="terminal">
+                    <div class="terminal-line">NovaOS Terminal v1.0.0</div>
+                    <div class="terminal-line">Type "help" for commands</div>
+                    <div class="terminal-line" id="terminalOutput"></div>
+                    <div class="terminal-input">
+                        <span class="terminal-prompt">$</span>
+                        <input type="text" class="terminal-cmd" id="terminalInput">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="window" id="browserWindow">
+            <div class="window-header">
+                <div class="window-title">
+                    <img src="https://cdn-icons-png.flaticon.com/512/2991/2991148.png">
+                    <span>Nova Browser</span>
+                </div>
+                <div class="window-controls">
+                    <div class="window-btn minimize" data-window="browser"></div>
+                    <div class="window-btn maximize" data-window="browser"></div>
+                    <div class="window-btn close" data-window="browser"></div>
+                </div>
+            </div>
+            <div class="window-content">
+                <div class="browser-container">
+                    <div class="browser-nav">
+                        <input type="text" class="browser-url" id="browserUrl" value="https://google.com">
+                        <button class="browser-go" id="browserGo">Go</button>
+                    </div>
+                    <iframe class="browser-content" id="browserContent" src="https://google.com"></iframe>
+                </div>
+            </div>
+        </div>
+
+        <div class="window" id="assistantWindow">
+            <div class="window-header">
+                <div class="window-title">
+                    <img src="https://cdn-icons-png.flaticon.com/512/4712/4712035.png">
+                    <span>Nova Assistant</span>
+                </div>
+                <div class="window-controls">
+                    <div class="window-btn minimize" data-window="assistant"></div>
+                    <div class="window-btn maximize" data-window="assistant"></div>
+                    <div class="window-btn close" data-window="assistant"></div>
+                </div>
+            </div>
+            <div class="window-content">
+                <div class="assistant-container">
+                    <div class="assistant-messages" id="assistantMessages">
+                        <div class="assistant-message assistant-ai">
+                            Hello! I'm Nova, your AI assistant. How can I help you today?
+                        </div>
+                    </div>
+                    <div class="assistant-input-container">
+                        <input type="text" class="assistant-input" id="assistantInput" placeholder="Ask me anything...">
+                        <button class="assistant-send" id="assistantSend">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <line x1="22" y1="2" x2="11" y2="13"></line>
+                                <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="window" id="paintWindow">
+            <div class="window-header">
+                <div class="window-title">
+                    <img src="https://cdn-icons-png.flaticon.com/512/2503/2503658.png">
+                    <span>Nova Paint</span>
+                </div>
+                <div class="window-controls">
+                    <div class="window-btn minimize" data-window="paint"></div>
+                    <div class="window-btn maximize" data-window="paint"></div>
+                    <div class="window-btn close" data-window="paint"></div>
+                </div>
+            </div>
+            <div class="window-content">
+                <div class="paint-container">
+                    <div class="paint-tools">
+                        <div class="paint-tool active" data-tool="brush">
+                            <img src="https://cdn-icons-png.flaticon.com/512/2503/2503658.png" width="20">
+                        </div>
+                        <div class="paint-tool" data-tool="eraser">
+                            <img src="https://cdn-icons-png.flaticon.com/512/3039/3039003.png" width="20">
+                        </div>
+                        <div class="paint-tool" data-tool="line">
+                            <img src="https://cdn-icons-png.flaticon.com/512/254/254439.png" width="20">
+                        </div>
+                    </div>
+                    <div class="paint-canvas-container">
+                        <canvas class="paint-canvas" id="paintCanvas"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="window" id="musicWindow">
+            <div class="window-header">
+                <div class="window-title">
+                    <img src="https://cdn-icons-png.flaticon.com/512/2965/2965283.png">
+                    <span>Nova Music</span>
+                </div>
+                <div class="window-controls">
+                    <div class="window-btn minimize" data-window="music"></div>
+                    <div class="window-btn maximize" data-window="music"></div>
+                    <div class="window-btn close" data-window="music"></div>
+                </div>
+            </div>
+            <div class="window-content">
+                <div class="music-container">
+                    <div class="music-list">
+                        <div class="music-item">
+                            <img src="https://cdn-icons-png.flaticon.com/512/727/727218.png">
+                            <div>
+                                <div>Summer Vibes</div>
+                                <div style="font-size: 0.7rem; opacity: 0.7;">Artist</div>
+                            </div>
+                        </div>
+                        <div class="music-item">
+                            <img src="https://cdn-icons-png.flaticon.com/512/727/727218.png">
+                            <div>
+                                <div>Chill Beats</div>
+                                <div style="font-size: 0.7rem; opacity: 0.7;">Artist</div>
+                            </div>
+                        </div>
+                        <div class="music-item">
+                            <img src="https://cdn-icons-png.flaticon.com/512/727/727218.png">
+                            <div>
+                                <div>Focus Mode</div>
+                                <div style="font-size: 0.7rem; opacity: 0.7;">Artist</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="music-controls">
+                        <div class="music-btn">
+                            <img src="https://cdn-icons-png.flaticon.com/512/727/727209.png" width="20">
+                        </div>
+                        <div class="music-btn">
+                            <img src="https://cdn-icons-png.flaticon.com/512/727/727220.png" width="20">
+                        </div>
+                        <div class="music-btn">
+                            <img src="https://cdn-icons-png.flaticon.com/512/727/727212.png" width="20">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="window" id="storeWindow">
+            <div class="window-header">
+                <div class="window-title">
+                    <img src="https://cdn-icons-png.flaticon.com/512/2965/2965879.png">
+                    <span>Nova Store</span>
+                </div>
+                <div class="window-controls">
+                    <div class="window-btn minimize" data-window="store"></div>
+                    <div class="window-btn maximize" data-window="store"></div>
+                    <div class="window-btn close" data-window="store"></div>
+                </div>
+            </div>
+            <div class="window-content">
+                <div class="store-container">
+                    <div class="store-header">
+                        Discover Apps
+                    </div>
+                    <div class="store-apps">
+                        <div class="store-app">
+                            <img src="https://cdn-icons-png.flaticon.com/512/2965/2965300.png">
+                            <div class="store-app-name">File Manager</div>
+                            <div class="store-app-btn">Installed</div>
+                        </div>
+                        <div class="store-app">
+                            <img src="https://cdn-icons-png.flaticon.com/512/2951/2951137.png">
+                            <div class="store-app-name">Notes</div>
+                            <div class="store-app-btn">Installed</div>
+                        </div>
+                        <div class="store-app">
+                            <img src="https://cdn-icons-png.flaticon.com/512/6125/6125000.png">
+                            <div class="store-app-name">Terminal</div>
+                            <div class="store-app-btn">Installed</div>
+                        </div>
+                        <div class="store-app">
+                            <img src="https://cdn-icons-png.flaticon.com/512/2991/2991148.png">
+                            <div class="store-app-name">Browser</div>
+                            <div class="store-app-btn">Installed</div>
+                        </div>
+                        <div class="store-app">
+                            <img src="https://cdn-icons-png.flaticon.com/512/2503/2503658.png">
+                            <div class="store-app-name">Paint</div>
+                            <div class="store-app-btn">Install</div>
+                        </div>
+                        <div class="store-app">
+                            <img src="https://cdn-icons-png.flaticon.com/512/2965/2965283.png">
+                            <div class="store-app-name">Music</div>
+                            <div class="store-app-btn">Install</div>
+                        </div>
+                        <div class="store-app">
+                            <img src="https://cdn-icons-png.flaticon.com/512/2965/2965879.png">
+                            <div class="store-app-name">Store</div>
+                            <div class="store-app-btn">Installed</div>
+                        </div>
+                        <div class="store-app">
+                            <img src="https://cdn-icons-png.flaticon.com/512/4712/4712035.png">
+                            <div class="store-app-name">Assistant</div>
+                            <div class="store-app-btn">Installed</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="window" id="settingsWindow">
+            <div class="window-header">
+                <div class="window-title">
+                    <img src="https://cdn-icons-png.flaticon.com/512/2965/2965876.png">
+                    <span>Nova Settings</span>
+                </div>
+                <div class="window-controls">
+                    <div class="window-btn minimize" data-window="settings"></div>
+                    <div class="window-btn maximize" data-window="settings"></div>
+                    <div class="window-btn close" data-window="settings"></div>
+                </div>
+            </div>
+            <div class="window-content">
+                <div class="settings-container">
+                    <div class="settings-sidebar">
+                        <div class="settings-item active" data-section="appearance">
+                            <img src="https://cdn-icons-png.flaticon.com/512/2965/2965876.png" width="16">
+                            Appearance
+                        </div>
+                        <div class="settings-item" data-section="wallpaper">
+                            <img src="https://cdn-icons-png.flaticon.com/512/2965/2965279.png" width="16">
+                            Wallpaper
+                        </div>
+                        <div class="settings-item" data-section="sound">
+                            <img src="https://cdn-icons-png.flaticon.com/512/2965/2965283.png" width="16">
+                            Sound
+                        </div>
+                        <div class="settings-item" data-section="account">
+                            <img src="https://cdn-icons-png.flaticon.com/512/2965/2965878.png" width="16">
+                            Account
+                        </div>
+                    </div>
+                    <div class="settings-content">
+                        <div class="settings-section" id="appearanceSection">
+                            <div class="settings-title">Appearance</div>
+                            <div>Theme</div>
+                            <div class="theme-selector">
+                                <div class="theme-option selected" style="background: #1a1a2e;" data-theme="dark"></div>
+                                <div class="theme-option" style="background: #f8f9fa;" data-theme="light"></div>
+                                <div class="theme-option" style="background: linear-gradient(135deg, #0f0c29, #302b63);" data-theme="aurora"></div>
+                                <div class="theme-option" style="background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2);" data-theme="glass"></div>
+                                <div class="theme-option" style="background: #16213e; box-shadow: 0 0 15px #00f2fe;" data-theme="neon"></div>
+                            </div>
+                        </div>
+                        <div class="settings-section" id="wallpaperSection" style="display: none;">
+                            <div class="settings-title">Wallpaper</div>
+                            <div>Coming soon</div>
+                        </div>
+                        <div class="settings-section" id="soundSection" style="display: none;">
+                            <div class="settings-title">Sound</div>
+                            <div>Coming soon</div>
+                        </div>
+                        <div class="settings-section" id="accountSection" style="display: none;">
+                            <div class="settings-title">Account</div>
+                            <div>Coming soon</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Dock -->
+        <div class="dock">
+            <div class="dock-item" data-app="notes">
+                <img src="https://cdn-icons-png.flaticon.com/512/2951/2951137.png">
+            </div>
+            <div class="dock-item" data-app="files">
+                <img src="https://cdn-icons-png.flaticon.com/512/2965/2965300.png">
+            </div>
+            <div class="dock-item" data-app="terminal">
+                <img src="https://cdn-icons-png.flaticon.com/512/6125/6125000.png">
+            </div>
+            <div class="dock-item" data-app="browser">
+                <img src="https://cdn-icons-png.flaticon.com/512/2991/2991148.png">
+            </div>
+            <div class="dock-item" data-app="assistant">
+                <img src="https://cdn-icons-png.flaticon.com/512/4712/4712035.png">
+            </div>
+        </div>
+
+        <!-- Status Bar -->
+        <div class="status-bar">
+            <div class="status-left">
+                <span id="currentApp">NovaOS</span>
+            </div>
+            <div class="status-right">
+                <span id="wifiStatus">📶</span>
+                <span id="batteryStatus">🔋 100%</span>
+                <span class="status-time" id="currentTime">12:00 PM</span>
+            </div>
+        </div>
+
+        <!-- Context Menu -->
+        <div class="context-menu" id="contextMenu">
+            <div class="context-item" id="newFolder">
+                <img src="https://cdn-icons-png.flaticon.com/512/2965/2965300.png" width="16">
+                New Folder
+            </div>
+            <div class="context-item" id="newFile">
+                <img src="https://cdn-icons-png.flaticon.com/512/2965/2965278.png" width="16">
+                New File
+            </div>
+            <div class="context-item" id="changeWallpaper">
+                <img src="https://cdn-icons-png.flaticon.com/512/2965/2965279.png" width="16">
+                Change Wallpaper
+            </div>
+            <div class="context-item" id="refresh">
+                <img src="https://cdn-icons-png.flaticon.com/512/2965/2965875.png" width="16">
+                Refresh
+            </div>
+        </div>
+
+        <!-- Voice Assistant -->
+        <div class="voice-assistant" id="voiceAssistant">
+            <img src="https://cdn-icons-png.flaticon.com/512/4712/4712035.png" width="24">
+        </div>
+    </div>
+
+    <script>
+       // DOM Elements
+        const loginScreen = document.getElementById('loginScreen');
+        const desktop = document.getElementById('desktop');
+        const loginBtn = document.getElementById('loginBtn');
+        const usernameInput = document.getElementById('username');
+        const passwordInput = document.getElementById('password');
+        const errorMsg = document.getElementById('errorMsg') || createErrorMsg(); // create error msg if not exists
+
+        const desktopIcons = document.querySelectorAll('.desktop-icon');
+        const dockItems = document.querySelectorAll('.dock-item');
+        const windows = document.querySelectorAll('.window');
+        const windowControls = document.querySelectorAll('.window-btn');
+        const notesContent = document.getElementById('notesContent');
+        const terminalInput = document.getElementById('terminalInput');
+        const terminalOutput = document.getElementById('terminalOutput');
+        const assistantInput = document.getElementById('assistantInput');
+        const assistantSend = document.getElementById('assistantSend');
+        const assistantMessages = document.getElementById('assistantMessages');
+        const currentTime = document.getElementById('currentTime');
+        const contextMenu = document.getElementById('contextMenu');
+        const wallpaper = document.getElementById('wallpaper');
+        const browserUrl = document.getElementById('browserUrl');
+        const browserGo = document.getElementById('browserGo');
+        const browserContent = document.getElementById('browserContent');
+        const paintCanvas = document.getElementById('paintCanvas');
+        const paintTools = document.querySelectorAll('.paint-tool');
+        const settingsItems = document.querySelectorAll('.settings-item');
+        const themeOptions = document.querySelectorAll('.theme-option');
+        const voiceAssistant = document.getElementById('voiceAssistant');
+        const togglePassword = document.getElementById('togglePassword');
+
+        // State
+        let activeWindow = null;
+        let isDragging = false;
+        let dragOffsetX = 0;
+        let dragOffsetY = 0;
+        let currentZIndex = 10;
+        let notes = localStorage.getItem('nova-notes') || '';
+        let terminalHistory = [];
+        let terminalHistoryIndex = -1;
+        let isDrawing = false;
+        let currentTool = 'brush';
+        let lastX = 0;
+        let lastY = 0;
+        let recognition;
+
+        // Correct credentials for login validation
+        const correctUsername = "NovaOs@Nova.com";
+        const correctPassword = "Nova@123";
+
+        // Initialize
+        notesContent.value = notes;
+        updateTime();
+        setInterval(updateTime, 60000);
+
+        // Set up canvas
+        if (paintCanvas) {
+            const ctx = paintCanvas.getContext('2d');
+            paintCanvas.width = 800;
+            paintCanvas.height = 600;
+            ctx.fillStyle = 'white';
+            ctx.fillRect(0, 0, paintCanvas.width, paintCanvas.height);
+            ctx.strokeStyle = 'black';
+            ctx.lineWidth = 5;
+            ctx.lineCap = 'round';
+
+            paintCanvas.addEventListener('mousedown', startDrawing);
+            paintCanvas.addEventListener('mousemove', draw);
+            paintCanvas.addEventListener('mouseup', stopDrawing);
+            paintCanvas.addEventListener('mouseout', stopDrawing);
+        }
+
+        // Set up voice recognition
+        try {
+            recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+            recognition.continuous = false;
+            recognition.lang = 'en-US';
+
+            recognition.onstart = () => {
+                voiceAssistant.classList.add('listening');
+            };
+
+            recognition.onend = () => {
+                voiceAssistant.classList.remove('listening');
+            };
+
+            recognition.onresult = (event) => {
+                const transcript = event.results[0][0].transcript;
+                handleVoiceCommand(transcript);
+            };
+
+            recognition.onerror = (event) => {
+                console.error('Speech recognition error', event.error);
+                voiceAssistant.classList.remove('listening');
+            };
+        } catch (e) {
+            console.error('Speech recognition not supported', e);
+            voiceAssistant.style.display = 'none';
+        }
+
+        // Event Listeners
+        loginBtn.addEventListener('click', handleLogin);
+        document.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter' && (document.activeElement === usernameInput || document.activeElement === passwordInput)) {
+                handleLogin();
+            }
+        });
+
+        if(togglePassword){
+            togglePassword.addEventListener('click', () => {
+                const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+                passwordInput.setAttribute('type', type);
+                togglePassword.textContent = type === 'password' ? '👁️' : '🙈';
+            });
+        }
+
+        desktopIcons.forEach(icon => {
+            icon.addEventListener('dblclick', () => {
+                const app = icon.getAttribute('data-app');
+                openApp(app);
+            });
+        });
+
+        dockItems.forEach(item => {
+            item.addEventListener('click', () => {
+                const app = item.getAttribute('data-app');
+                openApp(app);
+            });
+        });
+
+        windowControls.forEach(control => {
+            control.addEventListener('click', (e) => {
+                const action = control.classList.contains('close') ? 'close' :
+                    control.classList.contains('minimize') ? 'minimize' : 'maximize';
+                const windowId = control.getAttribute('data-window');
+                const window = document.getElementById(`${windowId}Window`);
+
+                if (action === 'close') {
+                    window.style.display = 'none';
+                    updateDockItems();
+                    activeWindow = null;
+                } else if (action === 'minimize') {
+                    window.style.transform = 'translateY(100vh)';
+                    setTimeout(() => {
+                        window.style.display = 'none';
+                        updateDockItems();
+                        activeWindow = null;
+                    }, 300);
+                } else if (action === 'maximize') {
+                    if (window.style.width === '90vw' && window.style.height === '80vh') {
+                        window.style.width = '600px';
+                        window.style.height = '400px';
+                    } else {
+                        window.style.width = '90vw';
+                        window.style.height = '80vh';
+                        window.style.left = '5vw !important';
+                        window.style.top = '10vh !important';
+                    }
+                }
+
+                e.stopPropagation();
+            });
+        });
+
+        document.addEventListener('mousedown', (e) => {
+            if (e.target.closest('.window-header')) {
+                const window = e.target.closest('.window');
+                bringToFront(window);
+
+                isDragging = true;
+                activeWindow = window;
+                dragOffsetX = e.clientX - window.offsetLeft;
+                dragOffsetY = e.clientY - window.offsetTop;
+            } else if (!e.target.closest('.window') && !e.target.closest('.dock') && !e.target.closest('.desktop-icon')) {
+                if (activeWindow) {
+                    activeWindow.style.zIndex = 10;
+                    activeWindow = null;
+                }
+            }
+        });
+
+        document.addEventListener('mousemove', (e) => {
+            if (isDragging && activeWindow) {
+                activeWindow.style.left = `${e.clientX - dragOffsetX}px`;
+                activeWindow.style.top = `${e.clientY - dragOffsetY}px`;
+            }
+        });
+
+        document.addEventListener('mouseup', () => {
+            isDragging = false;
+        });
+
+        notesContent.addEventListener('input', () => {
+            notes = notesContent.value;
+            localStorage.setItem('nova-notes', notes);
+        });
+
+        terminalInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                const command = terminalInput.value.trim();
+                if (command) {
+                    handleTerminalCommand(command);
+                    terminalHistory.push(command);
+                    terminalHistoryIndex = terminalHistory.length;
+                    terminalInput.value = '';
+                }
+            }
+        });
+
+        terminalInput.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowUp' && terminalHistory.length > 0) {
+                e.preventDefault();
+                if (terminalHistoryIndex > 0) {
+                    terminalHistoryIndex--;
+                    terminalInput.value = terminalHistory[terminalHistoryIndex];
+                }
+            } else if (e.key === 'ArrowDown' && terminalHistory.length > 0) {
+                e.preventDefault();
+                if (terminalHistoryIndex < terminalHistory.length - 1) {
+                    terminalHistoryIndex++;
+                    terminalInput.value = terminalHistory[terminalHistoryIndex];
+                } else if (terminalHistoryIndex === terminalHistory.length - 1) {
+                    terminalHistoryIndex++;
+                    terminalInput.value = '';
+                }
+            }
+        });
+
+        assistantSend.addEventListener('click', sendAssistantMessage);
+        assistantInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                sendAssistantMessage();
+            }
+        });
+
+        browserGo.addEventListener('click', () => {
+            let url = browserUrl.value;
+            if (!url.startsWith('http://') && !url.startsWith('https://')) {
+                url = 'https://' + url;
+            }
+            browserContent.src = url;
+        });
+
+        browserUrl.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                browserGo.click();
+            }
+        });
+
+        paintTools.forEach(tool => {
+            tool.addEventListener('click', () => {
+                paintTools.forEach(t => t.classList.remove('active'));
+                tool.classList.add('active');
+                currentTool = tool.getAttribute('data-tool');
+            });
+        });
+
+        settingsItems.forEach(item => {
+            item.addEventListener('click', () => {
+                settingsItems.forEach(i => i.classList.remove('active'));
+                item.classList.add('active');
+
+                const section = item.getAttribute('data-section');
+                document.querySelectorAll('.settings-section').forEach(s => {
+                    s.style.display = 'none';
+                });
+                document.getElementById(`${section}Section`).style.display = 'block';
+            });
+        });
+
+        themeOptions.forEach(option => {
+            option.addEventListener('click', () => {
+                themeOptions.forEach(o => o.classList.remove('selected'));
+                option.classList.add('selected');
+
+                const theme = option.getAttribute('data-theme');
+                alert(`Theme changed to ${theme}`);
+            });
+        });
+
+        document.addEventListener('contextmenu', (e) => {
+            e.preventDefault();
+            showContextMenu(e.clientX, e.clientY);
+        });
+
+        document.addEventListener('click', () => {
+            contextMenu.style.display = 'none';
+        });
+
+        voiceAssistant.addEventListener('click', () => {
+            if (recognition) {
+                try {
+                    recognition.start();
+                } catch (e) {
+                    console.error('Error starting speech recognition', e);
+                }
+            }
+        });
+
+        // Updated handleLogin function with validation and error message
+        function handleLogin() {
+            const username = usernameInput.value.trim();
+            const password = passwordInput.value.trim();
+
+            if (username === correctUsername && password === correctPassword) {
+                errorMsg.style.display = 'none';
+                loginScreen.style.opacity = '0';
+                setTimeout(() => {
+                    loginScreen.style.display = 'none';
+                    desktop.style.display = 'block';
+                }, 500);
+            } else {
+                errorMsg.style.display = 'block';
+            }
+        }
+
+        function createErrorMsg() {
+            const p = document.createElement('p');
+            p.id = 'errorMsg';
+            p.style.color = 'red';
+            p.style.fontSize = '14px';
+            p.style.textAlign = 'center';
+            p.style.marginTop = '10px';
+            p.style.display = 'none';
+            p.textContent = '❌ Username or Password is not valid';
+            document.querySelector('.login-container').appendChild(p);
+            return p;
+        }
+
+        function openApp(app) {
+            const window = document.getElementById(`${app}Window`);
+
+            if (window.style.display === 'flex') {
+                bringToFront(window);
+            } else {
+                window.style.display = 'flex';
+                window.style.left = `${Math.random() * (window.innerWidth - 400)}px`;
+                window.style.top = `${Math.random() * (window.innerHeight - 300)}px`;
+                bringToFront(window);
+                updateDockItems();
+
+                // Focus input if available
+                if (app === 'terminal') {
+                    terminalInput.focus();
+                } else if (app === 'assistant') {
+                    assistantInput.focus();
+                } else if (app === 'browser') {
+                    browserUrl.focus();
+                }
+            }
+        }
+
+        function bringToFront(window) {
+            currentZIndex++;
+            window.style.zIndex = currentZIndex;
+            activeWindow = window;
+            updateDockItems();
+        }
+
+        function updateDockItems() {
+            dockItems.forEach(item => {
+                const app = item.getAttribute('data-app');
+                const window = document.getElementById(`${app}Window`);
+                if (window.style.display === 'flex') {
+                    item.classList.add('active');
+                } else {
+                    item.classList.remove('active');
+                }
+            });
+        }
+
+        function updateTime() {
+            const now = new Date();
+            const hours = now.getHours();
+            const minutes = now.getMinutes().toString().padStart(2, '0');
+            const ampm = hours >= 12 ? 'PM' : 'AM';
+            const displayHours = hours % 12 || 12;
+
+            currentTime.textContent = `${displayHours}:${minutes} ${ampm}`;
+        }
+
+        function handleTerminalCommand(command) {
+            let output = '';
+
+            switch (command.toLowerCase()) {
+                case 'help':
+                    output = `Available commands:
+        help - Show this help
+        clear - Clear the terminal
+        time - Show current time
+        echo [text] - Repeat the text
+        calc [expression] - Calculate math expression
+        open [app] - Open an app (notes, files, terminal, browser, assistant)`;
+                    break;
+                case 'clear':
+                    terminalOutput.innerHTML = '';
+                    return;
+                case 'time':
+                    output = new Date().toLocaleTimeString();
+                    break;
+                default:
+                    if (command.startsWith('echo ')) {
+                        output = command.substring(5);
+                    } else if (command.startsWith('calc ')) {
+                        try {
+                            output = eval(command.substring(5)).toString();
+                        } catch {
+                            output = 'Invalid expression';
+                        }
+                    } else if (command.startsWith('open ')) {
+                        const app = command.substring(5).toLowerCase();
+                        if (['notes', 'files', 'terminal', 'browser', 'assistant', 'paint', 'music', 'store', 'settings'].includes(app)) {
+                            openApp(app);
+                            output = `Opening ${app}...`;
+                        } else {
+                            output = `Unknown app: ${app}`;
+                        }
+                    } else {
+                        output = `Command not found: ${command}`;
+                    }
+            }
+
+            const line = document.createElement('div');
+            line.className = 'terminal-line';
+            line.textContent = `$ ${command}`;
+            terminalOutput.appendChild(line);
+
+            const response = document.createElement('div');
+            response.className = 'terminal-line';
+            response.textContent = output;
+            terminalOutput.appendChild(response);
+
+            terminalOutput.scrollTop = terminalOutput.scrollHeight;
+        }
+
+        async function sendAssistantMessage() {
+            const message = assistantInput.value.trim();
+            if (!message) return;
+
+            const userMessage = document.createElement('div');
+            userMessage.className = 'assistant-message assistant-user';
+            userMessage.textContent = message;
+            assistantMessages.appendChild(userMessage);
+
+            const loadingMessage = document.createElement('div');
+            loadingMessage.className = 'assistant-message assistant-ai';
+            loadingMessage.textContent = 'Nova is thinking...';
+            assistantMessages.appendChild(loadingMessage);
+
+            assistantInput.value = '';
+            assistantMessages.scrollTop = assistantMessages.scrollHeight;
+
+            try {
+                const response = await simulateGeminiResponse(message);
+
+                assistantMessages.removeChild(loadingMessage);
+
+                const aiMessage = document.createElement('div');
+                aiMessage.className = 'assistant-message assistant-ai';
+                aiMessage.textContent = response;
+                assistantMessages.appendChild(aiMessage);
+
+                if (response.includes('open notes')) {
+                    openApp('notes');
+                } else if (response.includes('open files')) {
+                    openApp('files');
+                } else if (response.includes('open terminal')) {
+                    openApp('terminal');
+                } else if (response.includes('open browser')) {
+                    openApp('browser');
+                }
+            } catch (error) {
+                assistantMessages.removeChild(loadingMessage);
+
+                const errorMessage = document.createElement('div');
+                errorMessage.className = 'assistant-message assistant-ai';
+                errorMessage.textContent = 'Sorry, I encountered an error. Please try again.';
+                assistantMessages.appendChild(errorMessage);
+            }
+
+            assistantMessages.scrollTop = assistantMessages.scrollHeight;
+        }
+
+        function simulateGeminiResponse(prompt) {
+            return new Promise((resolve) => {
+                setTimeout(() => {
+                    const responses = [
+                        `I understand you're asking about "${prompt}". Here's what I can tell you...`,
+                        `Great question about "${prompt}"! The answer is...`,
+                        `"${prompt}" is an interesting topic. Let me explain...`,
+                        `Regarding "${prompt}", here's the information you requested...`,
+                        `I've analyzed your question about "${prompt}" and here's my response...`,
+                        `For "${prompt}", I recommend the following: ... Would you like me to open the relevant app?`,
+                        `About "${prompt}", I found this information: ... I can open the browser to show you more if you'd like.`
+                    ];
+                    resolve(responses[Math.floor(Math.random() * responses.length)]);
+                }, 1500);
+            });
+        }
+
+        function showContextMenu(x, y) {
+            contextMenu.style.display = 'block';
+            contextMenu.style.left = `${x}px`;
+            contextMenu.style.top = `${y}px`;
+        }
+
+        function startDrawing(e) {
+            isDrawing = true;
+            const rect = paintCanvas.getBoundingClientRect();
+            lastX = e.clientX - rect.left;
+            lastY = e.clientY - rect.top;
+        }
+
+        function draw(e) {
+            if (!isDrawing) return;
+
+            const ctx = paintCanvas.getContext('2d');
+            const rect = paintCanvas.getBoundingClientRect();
+            const currentX = e.clientX - rect.left;
+            const currentY = e.clientY - rect.top;
+
+            ctx.beginPath();
+            ctx.moveTo(lastX, lastY);
+            ctx.lineTo(currentX, currentY);
+            ctx.stroke();
+
+            lastX = currentX;
+            lastY = currentY;
+        }
+
+        function stopDrawing() {
+            isDrawing = false;
+        }
+
+        function handleVoiceCommand(transcript) {
+            const userMessage = document.createElement('div');
+            userMessage.className = 'assistant-message assistant-user';
+            userMessage.textContent = transcript;
+            assistantMessages.appendChild(userMessage);
+
+            const loadingMessage = document.createElement('div');
+            loadingMessage.className = 'assistant-message assistant-ai';
+            loadingMessage.textContent = 'Processing voice command...';
+            assistantMessages.appendChild(loadingMessage);
+
+            assistantMessages.scrollTop = assistantMessages.scrollHeight;
+
+            setTimeout(() => {
+                assistantMessages.removeChild(loadingMessage);
+
+                let response = '';
+                let action = null;
+
+                if (transcript.toLowerCase().includes('open notes')) {
+                    response = "Opening Notes app...";
+                    action = 'notes';
+                } else if (transcript.toLowerCase().includes('open files')) {
+                    response = "Opening Files app...";
+                    action = 'files';
+                } else if (transcript.toLowerCase().includes('open terminal')) {
+                    response = "Opening Terminal app...";
+                    action = 'terminal';
+                } else if (transcript.toLowerCase().includes('open browser')) {
+                    response = "Opening Browser app...";
+                    action = 'browser';
+                } else if (transcript.toLowerCase().includes('open assistant')) {
+                    response = "Opening Assistant app...";
+                    action = 'assistant';
+                } else {
+                    response = `You said: "${transcript}". I can help with that.`;
+                }
+
+                const aiMessage = document.createElement('div');
+                aiMessage.className = 'assistant-message assistant-ai';
+                aiMessage.textContent = response;
+                assistantMessages.appendChild(aiMessage);
+
+                if (action) {
+                    openApp(action);
+                }
+
+                assistantMessages.scrollTop = assistantMessages.scrollHeight;
+            }, 1000);
+        }
+
+        // PWA Installation
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/service-worker.js')
+                    .then(registration => {
+                        console.log('ServiceWorker registration successful');
+                    })
+                    .catch(err => {
+                        console.log('ServiceWorker registration failed: ', err);
+                    });
+            });
+        }
+
+        // Install prompt
+        let deferredPrompt;
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+
+            setTimeout(() => {
+                if (confirm('Would you like to install NovaOS as a PWA?')) {
+                    deferredPrompt.prompt();
+                    deferredPrompt.userChoice.then((choiceResult) => {
+                        if (choiceResult.outcome === 'accepted') {
+                            console.log('User accepted the install prompt');
+                        } else {
+                            console.log('User dismissed the install prompt');
+                        }
+                        deferredPrompt = null;
+                    });
+                }
+            }, 3000);
+        });
+    </script>
+</body>
+</html>
